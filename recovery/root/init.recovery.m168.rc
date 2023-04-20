@@ -1,2 +1,0 @@
-#add for board init.rc for recovery mode
-import /init.recovery.common.rc
