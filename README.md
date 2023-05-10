@@ -7,4 +7,4 @@ if you have a low end computer and can't build twrp, use [Gitpot](https://gitpod
 Oh, A note for the noobs:
 If you dont know what's odin, what are you doing here?
 
-[Device tree for Samsung A03 Core](https://github.com/twrpdtgen/android_device_samsung_a3core
+[Device tree for Samsung A03 Core](https://github.com/twrpdtgen/android_device_samsung_a3core)
