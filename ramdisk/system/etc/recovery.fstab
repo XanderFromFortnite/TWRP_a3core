@@ -1,0 +1,21 @@
+# Mount point       FS           Device               2nd Device                 Flags
+/metadata           ext4         /dev/block/by-name/metadata          flags=display="Metadata";wipeingui
+
+# System Stuff...
+system		/system		ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
+/system_root/system  ext4  /dev/block/mapper/system         flags=backup=1;display="System Image";wipeingui
+
+/vendor                      ext4         /dev/block/mapper/vendor         flags=display="Vendor Image";wipeingui
+vendor		/vendor		ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
+
+/product             ext4         /dev/block/mapper/product         flags=flashimg=1;display="Product Image (CSC)";backup=1
+/system_ext            ext4         /dev/block/mapper/system_ext         flags=flashimg=1;display="System_ext";backup=1
+
+# These dont need a name, you literally know them
+/external_sd    vfat        /dev/block/mmcblk1p1           flags=storage;removable
+/usb-otg    auto        /dev/block/sda1    /dev/block/sda                flags=display="USB-OTG";storage;wipeingui;removable
+/storage		f2fs	/data/media/0		flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
+/data               f2fs         /dev/block/by-name/userdata          flags=display="Data";wipeingui;backup=1
+/cache              ext4         /dev/block/by-name/cache             flags=display="Cache";wipeingui;wipeduringfactoryreset
+/recovery           emmc      /dev/block/by-name/recovery             flags=display="Recovery Image";backup=1;flashimg=1
+/boot               emmc         /dev/block/by-name/boot            flags=display="Boot Image";backup=1;flashimg=1
