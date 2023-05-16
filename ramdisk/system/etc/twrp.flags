@@ -1,15 +1,18 @@
 # Mount point       FS           Device               2nd Device                 Flags
 /metadata           ext4         /dev/block/by-name/metadata          flags=display="Metadata";wipeingui
 
-# System Stuff...
-system		/system		ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
-/system_root/system  ext4  /dev/block/mapper/system         flags=backup=1;display="System Image";wipeingui
+# YOU KNOW HOW LONG I HAVE TO FIX THIS UP, I HAVE TO FLASH TWRP MORE THAN 500 TIMES, AHHHHHHHHHHH
+# Anyways...
 
-/vendor                      ext4         /dev/block/mapper/vendor         flags=display="Vendor Image";wipeingui
-vendor		/vendor		ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
+system		/system		ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
+/system_flash ext4  /dev/block/mapper/system         flags=backup=1;display="System Image";flashimg=1;wipeingui
+
+vendor		/vendor          ext4		ro,barrier=1,discard		wait,logical,first_stage_mount
+/vendor            ext4         /dev/block/mapper/vendor         flags=display="Vendor Image";wipeingui;flashimg;backup=1
 
 /product             ext4         /dev/block/mapper/product         flags=flashimg=1;display="Product Image (CSC)";backup=1
-/system_ext            ext4         /dev/block/mapper/system_ext         flags=flashimg=1;display="System_ext";backup=1
+
+/system_ext            ext4         /dev/block/mapper/system_ext         flags=flashimg;display="System_ext";backup=1
 
 # These dont need a name, you literally know them
 /external_sd    vfat        /dev/block/mmcblk1p1           flags=storage;removable
