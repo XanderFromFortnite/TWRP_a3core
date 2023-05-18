@@ -19,6 +19,7 @@ dir /a ramdisk >nul 2>&1 || if not "%ramdiskcomp%" == "empty" goto nofiles
 
 echo Android Image Kitchen - RepackImg Script
 echo by osm0sis @ xda-developers
+echo edited by XanderFromFortnite/DefenderXander
 echo.
 
 if exist *-new.* (
@@ -300,7 +301,7 @@ echo.
 if exist "split_img\*-sigtype" (
   set "outname=unsigned-new.img"
 ) else (
-  set "outname=image-new.img"
+  set "outname=recovery2.img"
 )
 if "%dttype%" == "ELF" set "repackelf=1"
 if "%imgtype%" == "ELF" if not "[%header%]" == "[]" if defined repackelf (
@@ -355,17 +356,17 @@ echo.
 echo Using signature: %sigtype% %avbtype%%avbtxt%%blobtype%
 echo.
 if not defined avbkey set "avbkey=%bin%\avb\verity"
-if "%sigtype%" == "AVBv1" java -jar "%bin%"\boot_signer.jar /%avbtype% unsigned-new.img "%avbkey%.pk8" "%avbkey%.x509."* image-new.img 2>nul
+if "%sigtype%" == "AVBv1" java -jar "%bin%"\boot_signer.jar /%avbtype% unsigned-new.img "%avbkey%.pk8" "%avbkey%.x509."* recovery2.img 2>nul
 if "%sigtype%" == "BLOB" (
-  "%bin%"\printf '-SIGNED-BY-SIGNBLOB-\00\00\00\00\00\00\00\00' > image-new.img
+  "%bin%"\printf '-SIGNED-BY-SIGNBLOB-\00\00\00\00\00\00\00\00' > recovery2.img
   "%bin%"\blobpack blob.tmp %blobtype% unsigned-new.img >nul
-  type blob.tmp >> image-new.img
+  type blob.tmp >> recovery2.img
   del /q blob.tmp >nul
 )
-if "%sigtype%" == "CHROMEOS" "%bin%"\futility vbutil_kernel --pack image-new.img --keyblock "%bin%\chromeos\kernel.keyblock" --signprivate "%bin%\chromeos\kernel_data_key.vbprivk" --version 1 --vmlinuz unsigned-new.img --bootloader "%bin%\chromeos\empty" --config "%bin%\chromeos\empty" --arch arm --flags 0x1
-if "%sigtype%" == "DHTB" "%bin%"\dhtbsign -i unsigned-new.img -o image-new.img >nul & del split_img\*-tailtype 2>nul
-if "%sigtype%" == "NOOK" type "split_img\*-master_boot.key" unsigned-new.img > image-new.img 2>nul
-if "%sigtype%" == "NOOKTAB" type "split_img\*-master_boot.key" unsigned-new.img > image-new.img 2>nul
+if "%sigtype%" == "CHROMEOS" "%bin%"\futility vbutil_kernel --pack recovery2.img --keyblock "%bin%\chromeos\kernel.keyblock" --signprivate "%bin%\chromeos\kernel_data_key.vbprivk" --version 1 --vmlinuz unsigned-new.img --bootloader "%bin%\chromeos\empty" --config "%bin%\chromeos\empty" --arch arm --flags 0x1
+if "%sigtype%" == "DHTB" "%bin%"\dhtbsign -i unsigned-new.img -o recovery2.img >nul & del split_img\*-tailtype 2>nul
+if "%sigtype%" == "NOOK" type "split_img\*-master_boot.key" unsigned-new.img > recovery2.img 2>nul
+if "%sigtype%" == "NOOKTAB" type "split_img\*-master_boot.key" unsigned-new.img > recovery2.img 2>nul
 if errorlevel == 1 goto error
 
 :skipsign
@@ -376,9 +377,9 @@ echo Loki patching new image . . .
 echo.
 echo Using type: %lokitype%
 echo.
-move /y image-new.img unlokied-new.img >nul
+move /y recovery2.img unlokied-new.img >nul
 if exist aboot.img (
-  "%bin%"\loki_tool patch %lokitype% aboot.img unlokied-new.img image-new.img >nul
+  "%bin%"\loki_tool patch %lokitype% aboot.img unlokied-new.img recovery2.img >nul
   if errorlevel == 1 echo Patching failed. & goto error
 ) else (
   echo Device aboot.img required in script directory to find Loki patch offset.
@@ -389,11 +390,11 @@ if exist aboot.img (
 if not exist "split_img\*-microloader.bin" goto skipamonet
 echo Amonet patching new image . . .
 echo.
-copy /b image-new.img unamonet-new.img >nul
+copy /b recovery2.img unamonet-new.img >nul
 copy /b split_img\*-microloader.bin microloader.tmp >nul
 "%bin%"\dd bs=1024 count=1 conv=notrunc if=unamonet-new.img of=head.tmp 2>nul
-"%bin%"\dd bs=1024 seek=1 conv=notrunc if=head.tmp of=image-new.img 2>nul
-"%bin%"\dd conv=notrunc if=microloader.tmp of=image-new.img 2>nul
+"%bin%"\dd bs=1024 seek=1 conv=notrunc if=head.tmp of=recovery2.img 2>nul
+"%bin%"\dd conv=notrunc if=microloader.tmp of=recovery2.img 2>nul
 del /q head.tmp microloader.tmp >nul
 
 :skipamonet
@@ -404,8 +405,8 @@ echo Appending footer . . .
 echo.
 echo Using type: %tailtype%
 echo.
-if "%tailtype%" == "Bump" "%bin%"\printf '\x41\xA9\xE4\x67\x74\x4D\x1D\x1B\xA4\x29\xF2\xEC\xEA\x65\x52\x79' >> image-new.img
-if "%tailtype%" == "SEAndroid" "%bin%"\printf 'SEANDROIDENFORCE' >> image-new.img
+if "%tailtype%" == "Bump" "%bin%"\printf '\x41\xA9\xE4\x67\x74\x4D\x1D\x1B\xA4\x29\xF2\xEC\xEA\x65\x52\x79' >> recovery2.img
+if "%tailtype%" == "SEAndroid" "%bin%"\printf 'SEANDROIDENFORCE' >> recovery2.img
 
 :skiptail
 if not defined origsize goto skippad
@@ -414,8 +415,8 @@ for /f "delims=" %%a in ('dir /b split_img\*-origsize') do @set "origsizename=%%
 for /f "delims=" %%a in ('type "split_img\%origsizename%"') do @set "filesize=%%a"
 echo Padding to original size . . .
 echo.
-copy /b image-new.img unpadded-new.img >nul
-"%bin%"\truncate -s %filesize% image-new.img
+copy /b recovery2.img unpadded-new.img >nul
+"%bin%"\truncate -s %filesize% recovery2.img
 
 :skippad
 echo Done!
@@ -431,5 +432,3 @@ set "exitcode=1"
 :end
 echo.
 echo %cmdcmdline% | findstr /i pushd >nul
-if errorlevel 1 pause
-exit /b %exitcode%
