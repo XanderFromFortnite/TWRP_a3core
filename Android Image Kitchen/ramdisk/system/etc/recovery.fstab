@@ -1,7 +1,7 @@
 # Mount point       FS           Device               2nd Device                 Flags
 
 /metadata           ext4         /dev/block/by-name/metadata          flags=display="Metadata";wipeingui
-/dtbo          emmc   /dev/block/by-name/dtbo                         flags=backup=1;display="DTB Overlays";flashimg=1;subpartitionof=/boot
+/dtbo          emmc   /dev/block/by-name/dtbo                         flags=backup=1;display="DTB Image";flashimg=1;subpartitionof=/boot
 
 # Important stuff
 
@@ -12,20 +12,21 @@ system		/system          ext4		ro,barrier=1,discard		wait,logical,first_stage_mo
 /vendor_image  emmc   /dev/block/by-name/vendor                       flags=flashimg=1;backup=1;display="Vendor Image"
 
 /product ext4  /dev/block/dm-3         flags=flashimg=1;display="Product Image";backup=1
+/product_image   emmc  /dev/block/mapper/product  flags=backup=1;flashimg;display="Product Image"
 
-/system_ext ext4  /dev/block/dm-1         flags=flashimg;display="System Image (EXT)";backup=1
+/system_ext ext4  /dev/block/dm-1         flags=flashimg=1;display="System Image (EXT)";backup=1
 
 /persist        ext4    /dev/block/by-name/persist                    flags=display="Persist"
 /persist_image  emmc    /dev/block/by-name/persist                    flags=display="Persist Image";backup=1;flashimg=1
 
-/efs ext4  /dev/block/by-name/sec_efs     flags=flashimg=1;display="EFS";backup=1
+/efs emmc  /dev/block/by-name/sec_efs     flags=display="EFS";backup=1
 
 # These dont need a name, you literally know them
 
 /external_sd    vfat        /dev/block/mmcblk1p1           flags=storage;removable
 /usb-otg    auto        /dev/block/sda1               flags=display="Mouse/Keyboard/USB";storage;removable
 /storage		emmc	/storage/emulated/0		flags=display="Internal Storage";usermrf;backup=1;fsflags="bind";removable
-/data               f2fs         /dev/block/by-name/userdata          flags=display="Data";wipeingui;backup=1;fileencryption=ice:aes-256-cts
+/data               f2fs         /dev/block/by-name/userdata          flags=display="Data";wipeingui;backup=1;encryptable=footer,length=-20480
 /cache              ext4         /dev/block/by-name/cache             flags=display="Cache";wipeingui
 /recovery           emmc      /dev/block/by-name/recovery             flags=display="Recovery Image";backup=1;flashimg=1
 /boot               emmc         /dev/block/by-name/boot            flags=display="Boot Image";backup=1;flashimg=1
